@@ -11,7 +11,7 @@ module.exports = {
     port,
     host,
     routes: [{
-      path: '/api',
+      path: '/',
       aliases: {
         'GET firstService': {
           action: 'firstService.firstAction'
