@@ -1,0 +1,16 @@
+{
+  "name": "moleculer_docker-compose_template",
+  "version": "0.0.1",
+  "license": "UNLICENSED",
+  "description": "A simple Moleculer-based microservices template with Docker Compose setup for development environment.",
+  "scripts": {
+    "dev": "moleculer-runner -E .my-moleculer.dev.env --repl --hot --config ./src/config/moleculer.config.js ./src/services"
+  },
+  "dependencies": {
+    "dotenv": "16.4.5",
+    "moleculer": "0.14.32",
+    "moleculer-repl": "0.7.4",
+    "moleculer-web": "0.10.7",
+    "nats": "2.21.0"
+  }
+}

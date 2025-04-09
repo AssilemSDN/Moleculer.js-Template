@@ -1,0 +1,85 @@
+version: '3.9'
+
+services:
+  traefik:
+    image: traefik:v2.1
+    container_name: traefik
+    command:
+      - "--api.insecure=true"  # To have th dashboard
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - 80:80  # Traefik expose les services publics sur le port 80
+      - 8080:8080  # Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - dmz_publique  # Traefik sera connecté au réseau public
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+  # Service API (gateway) Moleculer
+  my-moleculer-api:
+    image: my-moleculer:0.0.1
+    container_name: my-moleculer-api
+    command:
+      - node_modules/.bin/moleculer-runner
+      - --config
+      - ./src/config/moleculer.config.js
+      - -E
+      - .my-moleculer.dev.env
+      - ./src/services/api-gateway
+    env_file:
+      - .my-moleculer.dev.env
+    expose:
+      - "5000"  # <-- Cette ligne est cruciale pour que Traefik détecte le port
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`www.api.enfip.dgfip`)"
+      - "traefik.http.routers.api.entrypoints=web"
+      - "traefik.http.services.api.loadbalancer.server.port=5000"
+    depends_on:
+      - nats
+    networks:
+      - dmz_publique
+      - dmz_prive
+    restart: unless-stopped
+      
+  # Service Moleculer interne 1
+  my-moleculer-first-service:
+    image: my-moleculer:0.0.1
+    container_name: my-moleculer-first-service
+    command:
+      - node_modules/.bin/moleculer-runner
+      - --config
+      - ./src/config/moleculer.config.js
+      - -E
+      - .my-moleculer.dev.env
+      - ./src/services/first-service
+    env_file:
+      - .my-moleculer.dev.env
+    depends_on:
+      - nats  # Assure-toi que NATS soit démarré avant
+    networks:
+      - dmz_prive  # Service interne uniquement, pas exposé au public
+    restart: unless-stopped
+
+  # Broker NATS pour la communication entre les services
+  nats:
+    image: 'nats:2.3.2-alpine'
+    container_name: nats
+    networks:
+      - dmz_prive  # NATS est connecté au réseau privé
+    restart: unless-stopped
+
+# Définition des réseaux
+networks:
+  dmz_publique:
+    name: dmz_publique
+    driver: bridge
+  dmz_prive:
+    name: dmz_prive
+    internal: true  # This network is not accessible from outside
+    driver: bridge
