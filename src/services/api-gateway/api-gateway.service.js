@@ -15,6 +15,12 @@ module.exports = {
       aliases: {
         'GET firstService': {
           action: 'firstService.firstAction'
+        },
+        'GET articles': {
+          action: 'articles.list'
+        },
+        'POST articles': {
+          action: 'articles.create'
         }
       }
     }]

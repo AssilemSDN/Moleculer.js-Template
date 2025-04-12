@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   traefik:
-    image: traefik:v2.1
+    image: traefik:v3.3
     container_name: traefik
     command:
       - "--api.insecure=true"  # To have the dashboard
@@ -15,8 +15,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      - dmz_publique  # Traefik sera connecté au réseau public
-      - dmz_prive     # Traefik peut communiquer avec le backend
+      - publique  # Traefik sera connecté au réseau public
+      - backend     # Traefik peut communiquer avec le backend
     security_opt:
       - no-new-privileges:true
     restart: unless-stopped
@@ -44,7 +44,7 @@ services:
     depends_on:
       - nats
     networks:
-      - dmz_prive
+      - backend
     restart: unless-stopped
       
   # Service Moleculer interne 1
@@ -63,23 +63,61 @@ services:
     depends_on:
       - nats
     networks:
-      - dmz_prive 
+      - backend 
     restart: unless-stopped
+
+  # Service Moleculer interne 2
+  my-moleculer-articles:
+    image: my-moleculer:0.0.1
+    container_name: my-moleculer-articles
+    command:
+      - node_modules/.bin/moleculer-runner
+      - --config
+      - ./src/config/moleculer.config.js
+      - -E
+      - .my-moleculer.dev.env
+      - ./src/services/articles
+    env_file:
+      - .my-moleculer.dev.env
+    depends_on:
+      - nats
+    networks:
+      - backend 
+    restart: unless-stopped
+
+  # BDD
+  mongo:
+    image: mongo:8.0.6
+    container_name: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    networks:
+      - backend
+    expose:
+      - "27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: always
 
   # Broker NATS pour la communication entre les services
   nats:
-    image: 'nats:2.3.2-alpine'
+    image: 'nats:2.11.1-alpine'
     container_name: nats
     networks:
-      - dmz_prive 
+      - backend 
     restart: unless-stopped
 
 # Définition des réseaux
 networks:
-  dmz_publique:
-    name: dmz_publique
+  publique:
+    name: publique
     driver: bridge
-  dmz_prive:
-    name: dmz_prive
+  backend:
+    name: backend
     internal: true  # non accessible depuis l'extérieur
     driver: bridge
+
+# Volumes
+volumes:
+  mongodb_data:

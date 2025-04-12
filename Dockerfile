@@ -1,4 +1,4 @@
-FROM library/node:18.17-alpine as builder
+FROM library/node:23-alpine as builder
 
 WORKDIR /usr/app
 
@@ -7,7 +7,7 @@ COPY ./package.json /usr/app/
 RUN npm install
 # ----
 
-FROM library/node:18.17-alpine
+FROM library/node:23-alpine
 
 WORKDIR /usr/app
 

@@ -18,6 +18,9 @@ const handler = async function (ctx) {
 module.exports = {
   handler,
   params: {
-    firstParam: { type: 'string', optional: true }
+    firstParam: { 
+      type: 'string', 
+      optional: true 
+    }
   }
 }

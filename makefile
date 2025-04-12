@@ -1,5 +1,5 @@
-# build:
-# 	docker build --no-cache -t my-moleculer:0.0.1 .
+build-no-cache:
+	docker build --no-cache -t my-moleculer:0.0.1 .
 
 build:
 	docker build -t my-moleculer:0.0.1 .
