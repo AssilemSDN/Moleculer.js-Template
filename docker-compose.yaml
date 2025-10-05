@@ -1,0 +1,110 @@
+services:
+  # --------------------------------------------
+  # Traefik Reverse Proxy
+  # --------------------------------------------
+  traefik:
+    image: ${DOCKER_IMAGE_NAME_REVERSE_PROXY}:${DOCKER_IMAGE_TAG_REVERSE_PROXY}
+    container_name: ${DOCKER_CONTAINER_NAME_REVERSE_PROXY}
+    command:
+      # Remove the comment below to enable Traefik dashboard (insecure, for dev only)
+      # - "--api.insecure=true"
+      - "--providers.docker=true"                   # Enable Docker as a provider for Traefik
+      - "--providers.docker.exposedbydefault=false" # Do not expose containers unless explicitly enabled via labels
+      - "--entrypoints.web.address=:80"             # Define entrypoint for HTTP traffic
+    ports:
+      - 80:80   # Expose HTTP port 80 on host
+      # Enable this to access Traefik dashboard (localhost:8080)
+      # - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro  # Read-only access to Docker socket
+    networks:
+      - publique     # Public-facing network (for external access)
+      - backend      # Internal network to reach backend services
+    security_opt:
+      - no-new-privileges:true  # Security best practice
+    restart: unless-stopped     # Always restart unless stopped manually
+  # --------------------------------------------
+  # Moleculer API Gateway Service
+  # --------------------------------------------
+  my-moleculer-api:
+    image: ${DOCKER_IMAGE_NAME_APP}:${DOCKER_IMAGE_TAG_APP}
+    container_name: ${DOCKER_CONTAINER_BASENAME_APP}-api
+    command:
+      - node_modules/.bin/moleculer-runner
+      - --config
+      - ./src/config/moleculer.config.js
+      - -E
+      - development
+      - ./src/services/api-gateway
+    env_file:
+      - ${DOCKER_ENV_FILE_APP}  # Load application env variables
+    expose:
+      - ${APP_MOLECULER_API_GATEWAY_PORT}  # Expose API port internally for Traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`moleculer.api.local`)"  # Domain for routing
+      - "traefik.http.routers.api.entrypoints=web"                   # Use HTTP entrypoint
+      - "traefik.http.services.api.loadbalancer.server.port=${APP_MOLECULER_API_GATEWAY_PORT}"  # Internal port
+    depends_on:
+      - nats  # Wait for NATS broker to start
+    networks:
+      - backend
+    restart: unless-stopped
+  # --------------------------------------------
+  # Moleculer Internal Service: articles
+  # --------------------------------------------
+  my-moleculer-articles:
+    image: ${DOCKER_IMAGE_NAME_APP}:${DOCKER_IMAGE_TAG_APP}
+    container_name: ${DOCKER_CONTAINER_BASENAME_APP}-articles
+    command:
+      - node_modules/.bin/moleculer-runner
+      - --config
+      - ./src/config/moleculer.config.js
+      - -E
+      - development
+      - ./src/services/articles
+    env_file:
+      - ${DOCKER_ENV_FILE_APP}
+    depends_on:
+      - nats
+    networks:
+      - backend 
+    restart: unless-stopped
+  # --------------------------------------------
+  # MongoDB database
+  # --------------------------------------------
+  mongo:
+    image: ${DOCKER_IMAGE_NAME_DB}:${DOCKER_IMAGE_TAG_DB}
+    container_name: ${DOCKER_CONTAINER_NAME_DB}
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${APP_DB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${APP_DB_PASSWORD}
+    networks:
+      - backend
+    expose:
+      - 27017
+    volumes:
+      - mongodb_data:/data/db
+    restart: always
+  # --------------------------------------------
+  # NATS (Message Broker for Moleculer)
+  # --------------------------------------------
+  nats:
+    image: ${DOCKER_IMAGE_NAME_TRANSPORTER}:${DOCKER_IMAGE_TAG_TRANSPORTER}
+    container_name: ${DOCKER_CONTAINER_NAME_TRANSPORTER}
+    networks:
+      - backend 
+    restart: unless-stopped
+
+networks:
+  publique:
+    name: publique
+    driver: bridge  # Default Docker bridge driver
+  backend:
+    name: backend
+    internal: true  # Internal-only network (not accessible from host directly)
+    driver: bridge
+
+volumes:
+  mongodb_data:  # Volume to persist MongoDB data
+  
