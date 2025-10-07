@@ -34,7 +34,7 @@ services:
       - --config
       - ./src/config/moleculer.config.js
       - -E
-      - development
+      - ${DOCKER_ENV_FILE_APP}
       - ./src/services/api-gateway
     env_file:
       - ${DOCKER_ENV_FILE_APP}  # Load application env variables
@@ -61,7 +61,7 @@ services:
       - --config
       - ./src/config/moleculer.config.js
       - -E
-      - development
+      - ${DOCKER_ENV_FILE_APP}
       - ./src/services/articles
     env_file:
       - ${DOCKER_ENV_FILE_APP}

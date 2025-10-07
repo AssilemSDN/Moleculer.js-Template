@@ -12,14 +12,14 @@ const slugify = require('slugify')
  * ACTION : articles.create
  * Create a new article in the DB. Override the generated action create made by Moleculer db.
  * The title is mandatory. The slug is generated from the title.
- * @param {String} title           > The title of the article (required)
- * @param {String} author          > The author of the article (required)
- * @param {String} content         > The full content of the article (required)
- * @param {Boolean} [dryRun=false] > If true, validates but does not persist the new article object
- * @param {} ctx                   > Moleculer action context
- *
- * @returns {Object}               >
- * @throws {MoleculerError}        > If an article with the same slug already exists
+ * @param {} ctx                                 > Moleculer action context
+ * @param {object} ctx.params                    > Parameters passed to the action
+ * @param {String} ctx.params.title              > The title of the article (required)
+ * @param {String} ctx.params.author             > The author of the article (required)
+ * @param {String} ctx.params.content            > The full content of the article (required)
+ * @param {Boolean} [ctx.params.dryRun=false]    > If true, validates but does not persist the new article object
+ * @returns {Promise<object>}                    > Return an object : success status, dryRun flag, message, and the article data
+ * @throws {MoleculerError}                      > If an article with the same slug already exists
  */
 const handler = async function (ctx) {
   // 0. Extract params
@@ -29,7 +29,7 @@ const handler = async function (ctx) {
   const slug = slugify(title, { lower: true, strict: true }).substring(0, 60)
 
   // 2. Check if the article already exists
-  const existingArticle = await this.findBySlug(slug, ctx)
+  const existingArticle = await this.findBySlug(slug)
   if (existingArticle) {
     throw new MoleculerError(`Page with slug '${slug}' already exists.`, 409, 'PAGE_ALREADY_EXISTS')
   }

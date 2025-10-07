@@ -12,6 +12,12 @@ module.exports = {
       aliases: {
         'POST articles': {
           action: 'articles.create'
+        },
+        'GET articles/:slug': {
+          action: 'articles.getBySlug'
+        },
+        'DELETE articles/:slug': {
+          action: 'articles.deleteBySlug'
         }
       },
       bodyParsers: {

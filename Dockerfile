@@ -16,9 +16,6 @@ FROM node:23-alpine
 
 WORKDIR /usr/app
 
-# ENV NODE_ENV=development
-ENV NODE_ENV=production
-
 # Copy only node_modules from builder
 COPY --from=builder /usr/app/node_modules ./node_modules
 
