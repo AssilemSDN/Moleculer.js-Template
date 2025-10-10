@@ -1,0 +1,13 @@
+{
+  "fileServiceName": "users",
+  "serviceName": "users",
+  "modelName": "UserModel",
+  "fileModelName": "user",
+  "collectionName": "users",
+  "schemaName": "userSchema",
+  "fields": [
+    { "name": "email", "type": "String", "validatorType": "email", "required": true, "unique": true },
+    { "name": "name", "type": "String", "validatorType": "string", "required": true },
+    { "name": "age", "type": "Number", "validatorType": "number", "optional": true }
+  ]
+}

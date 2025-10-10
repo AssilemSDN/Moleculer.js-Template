@@ -42,33 +42,13 @@ services:
       - ${APP_MOLECULER_API_GATEWAY_PORT}  # Expose API port internally for Traefik
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`moleculer.api.local`)"  # Domain for routing
+      - "traefik.http.routers.api.rule=Host(`my-moleculer.local`)"   # Domain for routing
       - "traefik.http.routers.api.entrypoints=web"                   # Use HTTP entrypoint
       - "traefik.http.services.api.loadbalancer.server.port=${APP_MOLECULER_API_GATEWAY_PORT}"  # Internal port
     depends_on:
       - nats  # Wait for NATS broker to start
     networks:
       - backend
-    restart: unless-stopped
-  # --------------------------------------------
-  # Moleculer Internal Service: articles
-  # --------------------------------------------
-  my-moleculer-articles:
-    image: ${DOCKER_IMAGE_NAME_APP}:${DOCKER_IMAGE_TAG_APP}
-    container_name: ${DOCKER_CONTAINER_BASENAME_APP}-articles
-    command:
-      - node_modules/.bin/moleculer-runner
-      - --config
-      - ./src/config/moleculer.config.js
-      - -E
-      - ${DOCKER_ENV_FILE_APP}
-      - ./src/services/articles
-    env_file:
-      - ${DOCKER_ENV_FILE_APP}
-    depends_on:
-      - nats
-    networks:
-      - backend 
     restart: unless-stopped
   # --------------------------------------------
   # MongoDB database
