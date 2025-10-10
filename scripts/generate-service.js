@@ -142,7 +142,7 @@ if (require.main === module) {
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
     generateService(config)
   } catch (err) {
-    console.error('❌ Erreur lors de la génération du service :', err.message)
+    console.error('❌ Error during service generator :', err.message)
     process.exit(1)
   }
 }

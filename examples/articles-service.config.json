@@ -1,0 +1,32 @@
+{
+  "fileServiceName": "articles",
+  "serviceName": "articles",
+  "modelName": "Article",
+  "fileModelName": "article",
+  "collectionName": "articles",
+  "schemaName": "articleSchema",
+  
+  "fields": [
+    {
+      "name": "title",
+      "type": "String",
+      "required": true
+    },
+    {
+      "name": "slug",
+      "type": "String",
+      "required": true,
+      "unique": true
+    },
+    {
+      "name": "author",
+      "type": "String",
+      "required": true
+    },
+    {
+      "name": "content",
+      "type": "String",
+      "required": true
+    }
+  ]
+}
