@@ -25,7 +25,7 @@ module.exports = {
         'POST /articles': 'articles.create',
         'GET /articles': 'articles.list',
         'GET /articles/:slug': 'articles.getBySlug',
-        'PUT /articles/:slug': 'article.updateBySlug',
+        'PUT /articles/:slug': 'articles.updateBySlug',
         'DELETE /articles/:slug': 'articles.deleteBySlug'
       },
       bodyParsers: {
