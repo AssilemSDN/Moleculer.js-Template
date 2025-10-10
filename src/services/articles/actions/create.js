@@ -3,9 +3,8 @@
   ACTION    articles.create
   PATH API  POST /articles
 */
-
-const { MoleculerError } = require('moleculer').Errors
 const slugify = require('slugify')
+const ArticleAlreadyExistsError = require('../../../errors/article-already-exists.error')
 
 /**
  * @description
@@ -31,7 +30,7 @@ const handler = async function (ctx) {
   // 2. Check if the article already exists
   const existingArticle = await this.findBySlug(slug)
   if (existingArticle) {
-    throw new MoleculerError(`Page with slug '${slug}' already exists.`, 409, 'PAGE_ALREADY_EXISTS')
+    throw new ArticleAlreadyExistsError(slug)
   }
 
   // 3. Prepare article object to create

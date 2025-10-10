@@ -3,8 +3,7 @@
   ACTION    articles.deleteBySlug
   PATH API  DELETE /articles/:slug
 */
-
-const { MoleculerError } = require('moleculer').Errors
+const ArticleNotFoundError = require('../../../errors/article-not-found.error')
 
 /**
  * @description
@@ -20,13 +19,13 @@ const handler = async function (ctx) {
   // 0. Extract params
   const { slug } = ctx.params
 
-  // 2. Check if the article exists
+  // 1. Check if the article exists
   const article = await this.findBySlug(slug)
   if (!article) {
-    throw new MoleculerError(`Page with slug '${slug}' not found.`, 404, 'PAGE_NOT_FOUND')
+    throw new ArticleNotFoundError(slug)
   }
-
-  // 3. Delete the article from the DB
+  // 2. Delete the article from the DB
+  this.logger.info(`Deleting article with slug '${slug}'`)
   await this._remove(ctx, { id: article._id })
 
   return {

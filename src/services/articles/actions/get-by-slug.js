@@ -3,8 +3,7 @@
   ACTION    articles.getBySlug
   PATH API  GET /articles/:slug
 */
-
-const { MoleculerError } = require('moleculer').Errors
+const ArticleNotFoundError = require('../../../errors/article-not-found.error')
 
 /**
  * @description
@@ -20,10 +19,11 @@ const handler = async function (ctx) {
   // 0. Extract params
   const { slug } = ctx.params
 
-  // 2. Check if the article exists
+  // 1. Check if the article exists
+  this.logger.info(`Fetching article with slug '${slug}'`)
   const article = await this.findBySlug(slug)
   if (!article) {
-    throw new MoleculerError(`Page with slug '${slug}' not found.`, 404, 'PAGE_NOT_FOUND')
+    throw new ArticleNotFoundError(slug)
   }
 
   return {
