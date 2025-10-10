@@ -1,3 +1,7 @@
+/*
+  PATH      /src/config/moleculer.config.js
+  Purpose   Exports Moleculer-specific configuration from main app config
+*/
 const {
   namespace,
   logger,
