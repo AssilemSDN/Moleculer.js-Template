@@ -3,6 +3,7 @@
 */
 
 const ApiGateway = require('moleculer-web')
+const { routes } = require('../../config/routes.config')
 const { port, host } = require('../../config/application.config').moleculer
 
 module.exports = {
@@ -19,19 +20,7 @@ module.exports = {
       credentials: false,
       maxAge: 3600
     },
-    routes: [{
-      path: '/api/v1',
-      aliases: {
-        'POST /articles': 'articles.create',
-        'GET /articles': 'articles.list',
-        'GET /articles/:slug': 'articles.getBySlug',
-        'PUT /articles/:slug': 'articles.updateBySlug',
-        'DELETE /articles/:slug': 'articles.deleteBySlug'
-      },
-      bodyParsers: {
-        json: true
-      }
-    }]
+    routes
   },
   started () {
     this.logger.info(`API Gateway started at http://${host}:${port}/api/v1`)
