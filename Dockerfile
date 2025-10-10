@@ -6,7 +6,7 @@ FROM node:23-alpine AS builder
 WORKDIR /usr/app
 
 # Install production dependencies
-COPY package.json ./
+COPY package*.json ./
 RUN npm install --omit=dev
 
 # ------------------------------------
