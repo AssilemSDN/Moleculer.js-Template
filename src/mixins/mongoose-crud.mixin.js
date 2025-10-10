@@ -1,16 +1,28 @@
+/*
+  PATH      /src/mixins/mongoose-crud.mixin.js
+*/
 const DbService = require('moleculer-db')
 const MongooseAdapter = require('moleculer-db-adapter-mongoose')
 const { nodeEnv } = require('../config/application.config')
 const { url, user, pass } = require('../config/application.config').db
 
-module.exports = ({ model, collection }) => ({
+/**
+ * Mixin to create Moleculer DB service using Mongoose adapter.
+ * @param {Object} options
+ * @param {mongoose.Model} options.model    > Mongoose model
+ * @param {string} options.collection       > MongoDB collection name
+ * @param {Object} [options.adapterOptions] > Additional options for MongooseAdapter
+ * @returns {Object}                        > Moleculer service schema
+ */
+module.exports = ({ model, collection, adapterOptions }) => ({
   mixins: [DbService],
   adapter: new MongooseAdapter(url, {
     user,
     pass,
     maxPoolSize: 10,
     minPoolSize: 2,
-    socketTimeoutMS: 45000
+    socketTimeoutMS: 45000,
+    ...adapterOptions
   }),
   model,
   settings: {
@@ -20,16 +32,8 @@ module.exports = ({ model, collection }) => ({
     before: {
       '*' (ctx) {
         if (nodeEnv === 'development') {
-          this.logger.info(`[${ctx.action.name}] ctx.params:`, JSON.stringify(ctx.params, null, 2)) // Can log possibly sensitive data
+          this.logger.info(`[${ctx.action.name}] ctx.params:`, JSON.stringify(ctx.params, null, 2))
         }
-      }
-    },
-    error: {
-      '*' (ctx, err) {
-        if (nodeEnv === 'development') {
-          this.logger.error(`[${ctx.action.name}] Error:`, err.message)
-        }
-        throw new Error('Database operation failed')
       }
     }
   },
