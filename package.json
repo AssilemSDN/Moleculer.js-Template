@@ -4,7 +4,7 @@
   "license": "UNLICENSED",
   "description": "A simple Moleculer-based microservices template with Docker Compose setup for development environment.",
   "scripts": {
-    "dev": "moleculer-runner -E .env.example --repl --hot --config ./src/config/moleculer.config.js ./src/services"
+    "dev": "moleculer-runner -E .env.dev --repl --hot --config ./src/config/moleculer.config.js ./src/services"
   },
   "dependencies": {
     "dotenv": "16.4.5",
